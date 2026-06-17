@@ -540,11 +540,11 @@ input[type=range]:disabled { opacity: 0.3; }
     <!-- Weapon select -->
     <div class="weapon-scroll" id="weaponScroll"></div>
 
-    <!-- Angle -->
+    <!-- Angle: slider 0..180, center(90)=вертикально, right(0)=горизонтально вправо, left(180)=горизонтально влево -->
     <div class="slider-row">
-      <span class="slider-label">Угол</span>
-      <input type="range" id="angleSlider" min="-80" max="80" value="45" oninput="onAngleInput(this.value)">
-      <span class="slider-val" id="angleVal">45°</span>
+      <span class="slider-label">Угол <span style="color:var(--text2);font-size:10px;">←0° 90° 180°→</span></span>
+      <input type="range" id="angleSlider" min="0" max="180" value="90" oninput="onAngleInput(this.value)">
+      <span class="slider-val" id="angleVal">90°</span>
     </div>
 
     <!-- Power -->
@@ -554,10 +554,9 @@ input[type=range]:disabled { opacity: 0.3; }
       <span class="slider-val" id="powerVal">60</span>
     </div>
 
-    <!-- Direction -->
-    <div class="dir-toggle">
-      <button class="dir-btn active" id="dirLeft" onclick="setDir(-1)">← Лево</button>
-      <button class="dir-btn" id="dirRight" onclick="setDir(1)">Право →</button>
+    <!-- Direction is encoded in angle: 0-89 = вправо, 91-180 = влево, 90 = вверх -->
+    <div style="font-size:11px;color:var(--text2);text-align:center;padding:2px 0;">
+      0°=→  |  90°=↑  |  180°=←
     </div>
 
     <!-- Fire row -->
@@ -634,13 +633,14 @@ function tgShowPopup(msg, onClose) {
 const TANK_COLORS = ['#E24B4A','#378ADD','#639922','#BA7517','#D4537E','#534AB7','#1D9E75','#888780'];
 const TANK_NAMES  = ['Красный','Синий','Зелёный','Жёлтый','Розовый','Фиолетовый','Бирюзовый','Серый'];
 
+// dmg = прямое попадание; splash = радиус взрыва; falloff = урон на краю зоны (доля от dmg)
 const WEAPONS = [
-  { id:'bullet',  name:'Снаряд',  icon:'●', desc:'Обычный снаряд',      dmg:30,  splash:22, cost:0,   count:Infinity },
-  { id:'missile', name:'Ракета',  icon:'▲', desc:'Мощный удар',         dmg:55,  splash:38, cost:0,   count:Infinity },
-  { id:'cluster', name:'Кассета', icon:'✦', desc:'5 осколков',          dmg:20,  splash:15, cost:150, count:3 },
-  { id:'nuke',    name:'Ядерная', icon:'☢', desc:'Огромный взрыв',      dmg:110, splash:90, cost:500, count:1 },
-  { id:'shield',  name:'Щит',     icon:'◈', desc:'Защита +30 HP',       dmg:0,   splash:0,  cost:200, count:3 },
-  { id:'repair',  name:'Ремонт',  icon:'♥', desc:'Восстановить +50 HP', dmg:0,   splash:0,  cost:300, count:2 },
+  { id:'bullet',  name:'Снаряд',  icon:'●', desc:'25 урона, R=18',        dmg:25,  splash:18, falloff:0.15, cost:0,   count:Infinity },
+  { id:'missile', name:'Ракета',  icon:'▲', desc:'55 урона, R=35',        dmg:55,  splash:35, falloff:0.25, cost:0,   count:Infinity },
+  { id:'cluster', name:'Кассета', icon:'✦', desc:'5×18 ур., R=14 каждый', dmg:18,  splash:14, falloff:0.10, cost:150, count:3 },
+  { id:'nuke',    name:'Ядерная', icon:'☢', desc:'120 урона, R=90',       dmg:120, splash:90, falloff:0.30, cost:500, count:1 },
+  { id:'shield',  name:'Щит',     icon:'◈', desc:'Защита +30 HP',         dmg:0,   splash:0,  falloff:0,    cost:200, count:3 },
+  { id:'repair',  name:'Ремонт',  icon:'♥', desc:'Восстановить +50 HP',   dmg:0,   splash:0,  falloff:0,    cost:300, count:2 },
 ];
 
 const GRAVITY  = 0.25;
