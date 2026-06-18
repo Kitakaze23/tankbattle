@@ -10,570 +10,169 @@
 :root {
   --tg-safe-top: env(safe-area-inset-top, 0px);
   --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --accent: #E24B4A;
-  --accent2: #378ADD;
-  --gold: #FAC775;
-  --green: #639922;
-  --bg0: #0f0f1a;
-  --bg1: #1a1a2e;
-  --bg2: #1e2340;
-  --surface: rgba(255,255,255,0.06);
-  --border: rgba(255,255,255,0.10);
-  --text: #f0f0f0;
-  --text2: rgba(240,240,240,0.55);
-  --radius: 12px;
-  --radius-sm: 8px;
+  --accent:#E24B4A; --accent2:#378ADD; --gold:#FAC775; --green:#639922;
+  --bg0:#0f0f1a; --bg1:#1a1a2e; --surface:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.10); --text:#f0f0f0; --text2:rgba(240,240,240,0.55);
+  --radius:12px; --radius-sm:8px;
 }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg0);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:14px;overscroll-behavior:none;touch-action:manipulation;}
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--tg-safe-top);padding-bottom:var(--tg-safe-bottom);}
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;}
+.screen.active{display:flex;}
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* SETUP */
+#screen-setup{padding:16px;gap:12px;}
+.logo{text-align:center;padding:12px 0 4px;}
+.logo-title{font-size:28px;font-weight:700;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--gold) 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);margin-bottom:12px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field label{font-size:11px;color:var(--text2);margin-bottom:4px;display:block;}
+select{width:100%;background:rgba(255,255,255,0.07);border:0.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;padding:8px 10px;font-family:inherit;-webkit-appearance:none;appearance:none;}
+select option{background:#1a1a2e;}
+.tank-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border);}
+.tank-row:last-child{border-bottom:none;}
+.tank-dot{width:22px;height:22px;border-radius:6px;flex-shrink:0;}
+.tank-row-name{font-size:13px;font-weight:600;flex:1;min-width:0;}
+.tank-row select{width:110px;flex-shrink:0;font-size:11px;padding:6px 8px;}
+.tank-team-sel{width:80px!important;display:none;}
+.btn-primary{display:flex;align-items:center;justify-content:center;padding:15px;border-radius:var(--radius);border:none;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,var(--accent) 0%,#c0392b 100%);color:#fff;width:100%;}
+.btn-primary:active{transform:scale(0.97);}
 
-html, body {
-  height: 100%;
-  background: var(--bg0);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-size: 14px;
-  overscroll-behavior: none;
-  touch-action: manipulation;
-}
+/* GAME */
+#screen-game{padding:0;gap:0;overflow:hidden;}
+.game-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg1);border-bottom:0.5px solid var(--border);flex-shrink:0;min-height:44px;}
+.turn-info{font-size:13px;font-weight:600;}
+.round-badge{font-size:11px;color:var(--text2);background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;}
+.wind-pill{font-size:12px;background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--gold);}
+#canvasWrap{position:relative;flex-shrink:0;width:100%;background:#0f0f1a;}
+#gameCanvas{display:block;width:100%;height:auto;touch-action:none;}
+.game-controls{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--bg0);-webkit-overflow-scrolling:touch;}
+.hp-bars{display:flex;gap:6px;flex-wrap:wrap;}
+.hp-item{display:flex;align-items:center;gap:5px;flex:1;min-width:80px;}
+.hp-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
+.hp-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
+.hp-bar-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+.hp-val{font-size:10px;color:var(--text2);min-width:20px;text-align:right;}
+.slider-row{display:flex;align-items:center;gap:8px;}
+.slider-label{font-size:11px;color:var(--text2);min-width:70px;}
+.slider-val{font-size:12px;font-weight:600;min-width:38px;text-align:right;color:var(--gold);}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;outline:none;touch-action:pan-y;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 6px rgba(250,199,117,0.4);}
+input[type=range]:disabled{opacity:0.3;}
+.weapon-scroll{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+.weapon-scroll::-webkit-scrollbar{display:none;}
+.wep-btn{flex-shrink:0;padding:6px 12px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface);color:var(--text2);font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;touch-action:manipulation;}
+.wep-btn.active{background:var(--gold);border-color:var(--gold);color:#1a1a2e;font-weight:700;}
+.action-row{display:flex;gap:8px;}
+.btn-fire{flex:1;background:linear-gradient(135deg,var(--accent) 0%,#c0392b 100%);color:#fff;border:none;border-radius:var(--radius);padding:13px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;touch-action:manipulation;letter-spacing:0.5px;}
+.btn-fire:active{transform:scale(0.96);opacity:0.85;}
+.btn-fire:disabled{opacity:0.3;pointer-events:none;}
+.btn-skip{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:13px 16px;color:var(--text2);font-family:inherit;font-size:13px;cursor:pointer;touch-action:manipulation;}
+.log-wrap{background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;max-height:64px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.log-wrap p{font-size:11px;color:var(--text2);line-height:1.5;}
+.angle-hint{font-size:10px;color:var(--text2);text-align:center;letter-spacing:0.3px;}
 
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding-top: var(--tg-safe-top);
-  padding-bottom: var(--tg-safe-bottom);
-}
-
-/* ── SCREENS ── */
-.screen { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
-.screen.active { display: flex; }
-
-/* ── SETUP SCREEN ── */
-#screen-setup { padding: 16px; gap: 12px; }
-
-.logo {
-  text-align: center;
-  padding: 12px 0 4px;
-}
-.logo-title {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.logo-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-
-.card {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-}
-.card-title {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text2);
-  margin-bottom: 12px;
-}
-
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.grid2 > div + div { }
-
-.field label { font-size: 11px; color: var(--text2); margin-bottom: 4px; display: block; }
-select, .sel-btn-group {
-  width: 100%;
-  background: rgba(255,255,255,0.07);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 13px;
-  padding: 8px 10px;
-  font-family: inherit;
-  -webkit-appearance: none;
-  appearance: none;
-}
-select option { background: #1a1a2e; }
-
-.tank-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 0;
-  border-bottom: 0.5px solid var(--border);
-}
-.tank-row:last-child { border-bottom: none; }
-.tank-dot {
-  width: 22px; height: 22px;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-.tank-row-name {
-  font-size: 13px;
-  font-weight: 600;
-  flex: 1;
-  min-width: 0;
-}
-.tank-row select {
-  width: 110px;
-  flex-shrink: 0;
-  font-size: 11px;
-  padding: 6px 8px;
-}
-.tank-team-sel {
-  width: 80px !important;
-  display: none;
-}
-
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 13px 20px;
-  border-radius: var(--radius);
-  border: none;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-  touch-action: manipulation;
-}
-.btn:active { transform: scale(0.97); opacity: 0.85; }
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent) 0%, #c0392b 100%);
-  color: #fff;
-  width: 100%;
-  font-size: 16px;
-  padding: 15px;
-}
-.btn-secondary {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  color: var(--text);
-}
-.btn-sm {
-  padding: 8px 14px;
-  font-size: 12px;
-  border-radius: var(--radius-sm);
-}
-.btn:disabled { opacity: 0.35; pointer-events: none; }
-
-/* ── GAME SCREEN ── */
-#screen-game {
-  padding: 0;
-  gap: 0;
-  overflow: hidden;
-}
-
-.game-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: var(--bg1);
-  border-bottom: 0.5px solid var(--border);
-  flex-shrink: 0;
-  min-height: 44px;
-}
-.turn-info { font-size: 13px; font-weight: 600; }
-.round-badge {
-  font-size: 11px;
-  color: var(--text2);
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: 20px;
-  padding: 3px 10px;
-}
-.wind-pill {
-  font-size: 12px;
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: 20px;
-  padding: 3px 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--gold);
-}
-
-#canvasWrap {
-  position: relative;
-  flex-shrink: 0;
-  width: 100%;
-  background: #0f0f1a;
-}
-#gameCanvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  touch-action: none;
-}
-
-.game-controls {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--bg0);
-  -webkit-overflow-scrolling: touch;
-}
-
-/* HP bars */
-.hp-bars {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.hp-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-  min-width: 80px;
-}
-.hp-dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
-.hp-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-.hp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
-.hp-val { font-size: 10px; color: var(--text2); min-width: 20px; text-align: right; }
-
-/* Sliders */
-.slider-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.slider-label { font-size: 11px; color: var(--text2); min-width: 62px; }
-.slider-val { font-size: 12px; font-weight: 600; min-width: 38px; text-align: right; color: var(--gold); }
-input[type=range] {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 2px;
-  outline: none;
-  touch-action: pan-y;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: var(--gold);
-  cursor: pointer;
-  box-shadow: 0 0 6px rgba(250,199,117,0.4);
-}
-input[type=range]:disabled { opacity: 0.3; }
-
-/* Direction toggle */
-.dir-toggle { display: flex; gap: 6px; }
-.dir-btn {
-  flex: 1;
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  border: 0.5px solid var(--border);
-  background: var(--surface);
-  color: var(--text2);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  touch-action: manipulation;
-}
-.dir-btn.active {
-  background: var(--accent2);
-  border-color: var(--accent2);
-  color: #fff;
-}
-
-/* Weapon tabs */
-.weapon-scroll {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-.weapon-scroll::-webkit-scrollbar { display: none; }
-.wep-btn {
-  flex-shrink: 0;
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 0.5px solid var(--border);
-  background: var(--surface);
-  color: var(--text2);
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s;
-  touch-action: manipulation;
-}
-.wep-btn.active {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: #1a1a2e;
-  font-weight: 700;
-}
-
-/* Fire + action row */
-.action-row { display: flex; gap: 8px; }
-.btn-fire {
-  flex: 1;
-  background: linear-gradient(135deg, var(--accent) 0%, #c0392b 100%);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 13px;
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-  touch-action: manipulation;
-  letter-spacing: 0.5px;
-}
-.btn-fire:active { transform: scale(0.96); opacity: 0.85; }
-.btn-fire:disabled { opacity: 0.3; pointer-events: none; }
-.btn-skip {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 13px 16px;
-  color: var(--text2);
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-/* Log */
-.log-wrap {
-  background: rgba(255,255,255,0.04);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  max-height: 64px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.log-wrap p { font-size: 11px; color: var(--text2); line-height: 1.5; }
-
-/* ── RESULTS SCREEN ── */
-#screen-results { padding: 16px; gap: 12px; }
-
-.winner-banner {
-  text-align: center;
-  padding: 20px 16px 16px;
-  background: linear-gradient(135deg, rgba(226,75,74,0.15) 0%, rgba(55,138,221,0.15) 100%);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-}
-.winner-emoji { font-size: 40px; margin-bottom: 8px; }
-.winner-text { font-size: 20px; font-weight: 700; }
-
-.result-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 0.5px solid var(--border);
-}
-.result-row:last-child { border-bottom: none; }
-.result-rank { font-size: 16px; font-weight: 700; color: var(--text2); min-width: 24px; }
-.result-dot { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
-.result-name { flex: 1; font-size: 14px; font-weight: 600; }
-.result-status { font-size: 11px; }
-.alive-tag { color: var(--green); }
-.dead-tag { color: var(--accent); }
-.result-score { font-size: 15px; font-weight: 700; color: var(--gold); }
-
-.shop-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 0.5px solid var(--border);
-}
-.shop-item:last-child { border-bottom: none; }
-.shop-icon { font-size: 22px; }
-.shop-info { flex: 1; }
-.shop-name { font-size: 13px; font-weight: 600; }
-.shop-desc { font-size: 11px; color: var(--text2); margin-top: 1px; }
-.shop-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.shop-cost { font-size: 13px; font-weight: 700; color: var(--gold); }
-.shop-buyers { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
-.buy-btn {
-  padding: 5px 10px;
-  border-radius: 20px;
-  border: 0.5px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 11px;
-  font-family: inherit;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-.buy-btn:active { opacity: 0.7; }
-
-.results-actions { display: flex; gap: 8px; padding-bottom: 8px; }
-.btn-next {
-  flex: 1;
-  background: linear-gradient(135deg, var(--green) 0%, #3d6b13 100%);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 14px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-.btn-menu {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 20px;
-  color: var(--text2);
-  font-family: inherit;
-  font-size: 14px;
-  cursor: pointer;
-  touch-action: manipulation;
-}
+/* RESULTS */
+#screen-results{padding:16px;gap:12px;}
+.winner-banner{text-align:center;padding:20px 16px 16px;background:linear-gradient(135deg,rgba(226,75,74,0.15) 0%,rgba(55,138,221,0.15) 100%);border:0.5px solid var(--border);border-radius:var(--radius);}
+.winner-emoji{font-size:40px;margin-bottom:8px;}
+.winner-text{font-size:20px;font-weight:700;}
+.result-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.result-row:last-child{border-bottom:none;}
+.result-rank{font-size:16px;font-weight:700;color:var(--text2);min-width:24px;}
+.result-dot{width:12px;height:12px;border-radius:4px;flex-shrink:0;}
+.result-name{flex:1;font-size:14px;font-weight:600;}
+.result-status{font-size:11px;}
+.alive-tag{color:var(--green);}
+.dead-tag{color:var(--accent);}
+.result-score{font-size:15px;font-weight:700;color:var(--gold);}
+.shop-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border);}
+.shop-item:last-child{border-bottom:none;}
+.shop-icon{font-size:22px;}
+.shop-info{flex:1;}
+.shop-name{font-size:13px;font-weight:600;}
+.shop-desc{font-size:11px;color:var(--text2);margin-top:1px;}
+.shop-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.shop-cost{font-size:13px;font-weight:700;color:var(--gold);}
+.shop-buyers{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.buy-btn{padding:5px 10px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface);color:var(--text);font-size:11px;font-family:inherit;cursor:pointer;touch-action:manipulation;}
+.results-actions{display:flex;gap:8px;padding-bottom:8px;}
+.btn-next{flex:1;background:linear-gradient(135deg,var(--green) 0%,#3d6b13 100%);color:#fff;border:none;border-radius:var(--radius);padding:14px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+.btn-menu{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 20px;color:var(--text2);font-family:inherit;font-size:14px;cursor:pointer;touch-action:manipulation;}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ═══════════════ SETUP SCREEN ═══════════════ -->
+<!-- SETUP -->
 <div id="screen-setup" class="screen active">
-
   <div class="logo">
     <div class="logo-title">TANK WARS</div>
     <div class="logo-sub">Тактический артиллерийский бой</div>
   </div>
-
   <div class="card">
     <div class="card-title">Параметры битвы</div>
     <div class="grid2">
-      <div class="field">
-        <label>Танков</label>
+      <div class="field"><label>Танков</label>
         <select id="tankCount" onchange="updateTankList()">
-          <option value="2">2 танка</option>
-          <option value="3">3 танка</option>
-          <option value="4" selected>4 танка</option>
-          <option value="5">5 танков</option>
-          <option value="6">6 танков</option>
-          <option value="7">7 танков</option>
-          <option value="8">8 танков</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Режим</label>
+          <option value="2">2 танка</option><option value="3">3 танка</option>
+          <option value="4" selected>4 танка</option><option value="5">5 танков</option>
+          <option value="6">6 танков</option><option value="7">7 танков</option><option value="8">8 танков</option>
+        </select></div>
+      <div class="field"><label>Режим</label>
         <select id="teamMode">
-          <option value="0">Каждый за себя</option>
-          <option value="2">2 команды</option>
-          <option value="3">3 команды</option>
-          <option value="4">4 команды</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Ветер</label>
-        <select id="windMode">
-          <option value="calm">Штиль</option>
-          <option value="normal" selected>Обычный</option>
-          <option value="strong">Шторм</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Ландшафт</label>
-        <select id="mapType">
-          <option value="hills">Холмы</option>
-          <option value="mountains" selected>Горы</option>
-          <option value="valleys">Долины</option>
-          <option value="chaos">Хаос</option>
-        </select>
-      </div>
+          <option value="0">Каждый за себя</option><option value="2">2 команды</option>
+          <option value="3">3 команды</option><option value="4">4 команды</option>
+        </select></div>
+      <div class="field"><label>Ветер</label>
+        <select id="windMode"><option value="calm">Штиль</option><option value="normal" selected>Обычный</option><option value="strong">Шторм</option></select></div>
+      <div class="field"><label>Ландшафт</label>
+        <select id="mapType"><option value="hills">Холмы</option><option value="mountains" selected>Горы</option><option value="valleys">Долины</option><option value="chaos">Хаос</option></select></div>
     </div>
   </div>
-
   <div class="card">
     <div class="card-title">Игроки</div>
     <div id="tankList"></div>
   </div>
-
-  <button class="btn btn-primary" onclick="startGame()">
-    ⚔️ Начать сражение
-  </button>
-
+  <button class="btn-primary" onclick="startGame()">⚔️ Начать сражение</button>
 </div>
 
-<!-- ═══════════════ GAME SCREEN ═══════════════ -->
+<!-- GAME -->
 <div id="screen-game" class="screen">
-
   <div class="game-header">
     <div class="turn-info" id="turnInfo">—</div>
     <div class="wind-pill" id="windPill">💨 —</div>
     <div class="round-badge" id="roundBadge">Раунд 1</div>
   </div>
-
-  <div id="canvasWrap">
-    <canvas id="gameCanvas"></canvas>
-  </div>
-
+  <div id="canvasWrap"><canvas id="gameCanvas"></canvas></div>
   <div class="game-controls">
-
-    <!-- HP bars -->
     <div class="hp-bars" id="hpBars"></div>
-
-    <!-- Weapon select -->
     <div class="weapon-scroll" id="weaponScroll"></div>
-
-    <!-- Angle: slider 0..180, center(90)=вертикально, right(0)=горизонтально вправо, left(180)=горизонтально влево -->
     <div class="slider-row">
-      <span class="slider-label">Угол <span style="color:var(--text2);font-size:10px;">←0° 90° 180°→</span></span>
+      <span class="slider-label">Угол</span>
       <input type="range" id="angleSlider" min="0" max="180" value="90" oninput="onAngleInput(this.value)">
       <span class="slider-val" id="angleVal">90°</span>
     </div>
-
-    <!-- Power -->
+    <div class="angle-hint">180°=→  |  90°=↑  |  0°=←</div>
     <div class="slider-row">
       <span class="slider-label">Сила залпа</span>
       <input type="range" id="powerSlider" min="10" max="100" value="60" oninput="onPowerInput(this.value)">
       <span class="slider-val" id="powerVal">60</span>
     </div>
-
-    <!-- Direction is encoded in angle: 0-89 = вправо, 91-180 = влево, 90 = вверх -->
-    <div style="font-size:11px;color:var(--text2);text-align:center;padding:2px 0;">
-      0°=→  |  90°=↑  |  180°=←
-    </div>
-
-    <!-- Fire row -->
     <div class="action-row">
       <button class="btn-fire" id="fireBtn" onclick="fire()">🔥 ОГОНЬ!</button>
       <button class="btn-skip" onclick="skipTurn()">Пас</button>
     </div>
-
-    <!-- Log -->
     <div class="log-wrap" id="gameLog"><p>Игра началась!</p></div>
-
   </div>
 </div>
 
-<!-- ═══════════════ RESULTS SCREEN ═══════════════ -->
+<!-- RESULTS -->
 <div id="screen-results" class="screen">
-  <div class="winner-banner" id="winnerBanner">
+  <div class="winner-banner">
     <div class="winner-emoji" id="winnerEmoji">🏆</div>
     <div class="winner-text" id="winnerText">—</div>
   </div>
@@ -588,122 +187,98 @@ input[type=range]:disabled { opacity: 0.3; }
   </div>
 </div>
 
-</div><!-- #app -->
-
+</div>
 <script>
-/* ════════════════════════════════════════════════
-   TELEGRAM WEBAPP API INTEGRATION
-════════════════════════════════════════════════ */
+/* ── TELEGRAM ── */
 const tg = window.Telegram?.WebApp;
-
-if (tg) {
-  tg.ready();
-  tg.expand();
-  tg.disableVerticalSwipes?.();
-  // Используем цвета темы Telegram если доступны
-  const tc = tg.themeParams;
-  // Скрываем кнопку назад Telegram на экране игры, показываем на результатах
-}
-
-function tgHaptic(type) {
-  // type: 'impact_light' | 'impact_medium' | 'impact_heavy' | 'notification_success' | 'notification_error'
+if (tg) { tg.ready(); tg.expand(); tg.disableVerticalSwipes?.(); }
+function tgHaptic(t) {
   try {
     if (!tg?.HapticFeedback) return;
-    if (type.startsWith('impact')) {
-      tg.HapticFeedback.impactOccurred(type.replace('impact_', ''));
-    } else if (type.startsWith('notification')) {
-      tg.HapticFeedback.notificationOccurred(type.replace('notification_', ''));
-    } else {
-      tg.HapticFeedback.selectionChanged();
-    }
+    if (t.startsWith('impact')) tg.HapticFeedback.impactOccurred(t.replace('impact_',''));
+    else if (t.startsWith('notification')) tg.HapticFeedback.notificationOccurred(t.replace('notification_',''));
+    else tg.HapticFeedback.selectionChanged();
   } catch(e) {}
 }
 
-function tgShowPopup(msg, onClose) {
-  try {
-    if (tg?.showAlert) { tg.showAlert(msg, onClose); return; }
-  } catch(e) {}
-  alert(msg);
-  onClose?.();
-}
-
-/* ════════════════════════════════════════════════
-   CONSTANTS
-════════════════════════════════════════════════ */
+/* ── CONSTANTS ── */
 const TANK_COLORS = ['#E24B4A','#378ADD','#639922','#BA7517','#D4537E','#534AB7','#1D9E75','#888780'];
 const TANK_NAMES  = ['Красный','Синий','Зелёный','Жёлтый','Розовый','Фиолетовый','Бирюзовый','Серый'];
+const TANK_W = 28; // ширина танка в пикселях (логических)
 
-// dmg = прямое попадание; splash = радиус взрыва; falloff = урон на краю зоны (доля от dmg)
+// Угол на слайдере: 0=влево, 90=вверх, 180=вправо
+// vx = cos(rad) * speed, где rad = (sliderVal/180)*PI - PI/2
+// при sv=0:   rad=-PI/2 → vx=-1 (влево)
+// при sv=90:  rad=0     → vx=0  (вверх)
+// при sv=180: rad=+PI/2 → vx=+1 (вправо)
+function sliderToVelocity(sv, speed) {
+  const rad = (sv / 180) * Math.PI - Math.PI / 2;
+  return { vx: Math.cos(rad) * speed, vy: -Math.sin(rad) * speed };
+}
+// Для отображения ствола: возвращает угол от горизонтали и направление
+function sliderToBarrel(sv) {
+  const rad = (sv / 180) * Math.PI - Math.PI / 2;
+  return { vx: Math.cos(rad), vy: -Math.sin(rad) };
+}
+
+// dmg = урон при прямом попадании, splash = радиус, falloff = минимальная доля урона на краю
 const WEAPONS = [
-  { id:'bullet',  name:'Снаряд',  icon:'●', desc:'25 урона, R=18',        dmg:25,  splash:18, falloff:0.15, cost:0,   count:Infinity },
-  { id:'missile', name:'Ракета',  icon:'▲', desc:'55 урона, R=35',        dmg:55,  splash:35, falloff:0.25, cost:0,   count:Infinity },
-  { id:'cluster', name:'Кассета', icon:'✦', desc:'5×18 ур., R=14 каждый', dmg:18,  splash:14, falloff:0.10, cost:150, count:3 },
-  { id:'nuke',    name:'Ядерная', icon:'☢', desc:'120 урона, R=90',       dmg:120, splash:90, falloff:0.30, cost:500, count:1 },
+  { id:'bullet',  name:'Снаряд',  icon:'●', desc:'25 ур · R 18',          dmg:25,  splash:18, falloff:0.10, cost:0,   count:Infinity },
+  { id:'missile', name:'Ракета',  icon:'▲', desc:'55 ур · R 35',          dmg:55,  splash:35, falloff:0.20, cost:0,   count:Infinity },
+  { id:'cluster', name:'Кассета', icon:'✦', desc:'5 осколков · 18 ур · R 14', dmg:18, splash:14, falloff:0.05, cost:150, count:3 },
+  { id:'nuke',    name:'Ядерная', icon:'☢', desc:'120 ур · R 90',         dmg:120, splash:90, falloff:0.25, cost:500, count:1 },
   { id:'shield',  name:'Щит',     icon:'◈', desc:'Защита +30 HP',         dmg:0,   splash:0,  falloff:0,    cost:200, count:3 },
-  { id:'repair',  name:'Ремонт',  icon:'♥', desc:'Восстановить +50 HP',   dmg:0,   splash:0,  falloff:0,    cost:300, count:2 },
+  { id:'repair',  name:'Ремонт',  icon:'♥', desc:'Восстановление +50 HP', dmg:0,   splash:0,  falloff:0,    cost:300, count:2 },
 ];
 
-const GRAVITY  = 0.25;
+const GRAVITY   = 0.22;
 const MAX_SPEED = 15.5;
-
-/* Canvas logical size — рендерим в двойном разрешении для Retina */
 const LW = 640, LH = 300;
 
-/* ════════════════════════════════════════════════
-   STATE
-════════════════════════════════════════════════ */
+/* ── STATE ── */
 let playerSettings = {};
 let state = makeState();
+let animId = null;  // requestAnimationFrame id — единственный активный
 
 function makeState() {
   return {
-    tanks: [], currentTankIdx: 0, wind: 0, round: 1,
-    projectile: null, explosion: null, terrain: [],
-    angle: 45, power: 60, dir: 1, selectedWeapon: 'bullet',
-    firing: false, scores: {}, inventory: {},
+    tanks:[], currentTankIdx:0, wind:0, round:1,
+    projectile:null, explosion:null, terrain:[],
+    firing:false, scores:{}, inventory:{},
+    aiOnlyMode:false,
   };
 }
 
-/* ════════════════════════════════════════════════
-   PLAYER SETTINGS PERSISTENCE
-════════════════════════════════════════════════ */
+/* ── PLAYER SETTINGS ── */
 function getSettings(id) {
-  if (!playerSettings[id]) playerSettings[id] = { angle:45, power:60, dir:1, weapon:'bullet' };
+  if (!playerSettings[id]) playerSettings[id] = { sliderAngle:90, power:60, weapon:'bullet' };
   return playerSettings[id];
 }
 function saveSettings(id) {
   if (id == null) return;
   playerSettings[id] = {
-    angle:  parseInt($('angleSlider').value),
-    power:  parseInt($('powerSlider').value),
-    dir:    state.dir,
-    weapon: state.selectedWeapon,
+    sliderAngle: parseInt($('angleSlider').value),
+    power:       parseInt($('powerSlider').value),
+    weapon:      state.selectedWeapon,
   };
 }
 function loadSettings(id) {
   const s = getSettings(id);
-  state.angle          = s.angle;
-  state.power          = s.power;
-  state.dir            = s.dir;
   state.selectedWeapon = s.weapon;
-  $('angleSlider').value = s.angle;
-  $('powerSlider').value  = s.power;
-  $('angleVal').textContent  = s.angle + '°';
-  $('powerVal').textContent   = s.power;
-  updateDirButtons();
+  $('angleSlider').value    = s.sliderAngle;
+  $('powerSlider').value    = s.power;
+  $('angleVal').textContent = s.sliderAngle + '°';
+  $('powerVal').textContent = s.power;
 }
 
-/* ════════════════════════════════════════════════
-   HELPERS
-════════════════════════════════════════════════ */
+/* ── HELPERS ── */
 function $(id) { return document.getElementById(id); }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $('screen-' + id).classList.add('active');
-  // Telegram back button
+  $('screen-'+id).classList.add('active');
   if (tg) {
-    if (id === 'setup') { tg.BackButton?.hide(); }
-    else { tg.BackButton?.show(); tg.BackButton?.onClick(() => { if (id==='game') { showSetup(); } else { showScreen('game'); } }); }
+    if (id === 'setup') tg.BackButton?.hide();
+    else { tg.BackButton?.show(); tg.BackButton?.onClick(() => showSetup()); }
   }
 }
 function addLog(msg) {
@@ -712,153 +287,156 @@ function addLog(msg) {
   el.appendChild(p); el.scrollTop = el.scrollHeight;
 }
 function getCurrentTank() { return state.tanks[state.currentTankIdx]; }
-function isAlly(a, b) { return a.team >= 0 && b.team >= 0 && a.team === b.team; }
+function isAlly(a,b) { return a.team>=0 && b.team>=0 && a.team===b.team; }
+function onlyAI() { return state.tanks.filter(t=>t.alive).every(t=>t.ctrl!=='human'); }
 
-/* ════════════════════════════════════════════════
-   SETUP SCREEN
-════════════════════════════════════════════════ */
+/* ── SETUP ── */
 function updateTankList() {
   const n = parseInt($('tankCount').value);
-  $('tankList').innerHTML = Array.from({length: n}, (_, i) => `
+  $('tankList').innerHTML = Array.from({length:n},(_,i)=>`
     <div class="tank-row">
       <div class="tank-dot" style="background:${TANK_COLORS[i]}"></div>
       <span class="tank-row-name">${TANK_NAMES[i]}</span>
       <select id="ctrl_${i}" style="width:110px;font-size:11px;padding:6px 8px;">
         <option value="human">Игрок</option>
         <option value="easy">ИИ: Лёгкий</option>
-        <option value="normal"${i > 0 ? ' selected' : ''}>ИИ: Средний</option>
+        <option value="normal"${i>0?' selected':''}>ИИ: Средний</option>
         <option value="hard">ИИ: Сложный</option>
       </select>
       <select id="team_${i}" class="tank-team-sel" style="display:none;">
-        ${[0,1,2,3].map(t => `<option value="${t}">Кмд ${t+1}</option>`).join('')}
+        ${[0,1,2,3].map(t=>`<option value="${t}">Кмд ${t+1}</option>`).join('')}
       </select>
     </div>`).join('');
-
-  if ($('ctrl_0')) $('ctrl_0').value = 'human';
-
+  if ($('ctrl_0')) $('ctrl_0').value='human';
   $('teamMode').onchange = () => {
     const tm = parseInt($('teamMode').value);
-    for (let i = 0; i < n; i++) {
-      const s = $('team_' + i);
-      if (s) { s.style.display = tm > 0 ? '' : 'none'; if (tm > 0) s.value = i % tm; }
+    for (let i=0;i<n;i++) {
+      const s=$('team_'+i); if(!s) continue;
+      s.style.display=tm>0?'':'none'; if(tm>0) s.value=i%tm;
     }
   };
   $('teamMode').onchange();
 }
 
-/* ════════════════════════════════════════════════
-   TERRAIN
-════════════════════════════════════════════════ */
+/* ── TERRAIN ── */
 function generateTerrain(type) {
-  const seg = 40;
-  const seeds = Array.from({length: seg+1}, () => Math.random());
-  const pts = [];
-  for (let x = 0; x <= LW; x++) {
-    const t = x / LW, i = Math.floor(t * seg), f = t * seg - i;
-    const b = seeds[Math.min(i, seg)] + (seeds[Math.min(i+1, seg)] - seeds[Math.min(i, seg)]) * f;
+  const seg=40, seeds=Array.from({length:seg+1},()=>Math.random()), pts=[];
+  for (let x=0;x<=LW;x++) {
+    const t=x/LW,i=Math.floor(t*seg),f=t*seg-i;
+    const b=seeds[Math.min(i,seg)]+(seeds[Math.min(i+1,seg)]-seeds[Math.min(i,seg)])*f;
     let h;
-    if (type === 'hills')     h = 0.35 + 0.25*b + 0.10*Math.sin(x/60);
-    else if (type === 'mountains') h = 0.25 + 0.45*Math.pow(b, 1.5) + 0.08*Math.sin(x/30);
-    else if (type === 'valleys')   h = 0.60 - 0.35*b + 0.05*Math.sin(x/50);
-    else h = 0.20 + 0.60*b + 0.10*Math.sin(x/20) + 0.05*Math.sin(x/7);
-    pts.push(Math.max(0.10, Math.min(0.85, h)));
+    if(type==='hills')      h=0.35+0.25*b+0.10*Math.sin(x/60);
+    else if(type==='mountains') h=0.25+0.45*Math.pow(b,1.5)+0.08*Math.sin(x/30);
+    else if(type==='valleys')   h=0.60-0.35*b+0.05*Math.sin(x/50);
+    else h=0.20+0.60*b+0.10*Math.sin(x/20)+0.05*Math.sin(x/7);
+    pts.push(Math.max(0.10,Math.min(0.85,h)));
   }
   return pts;
 }
 function getTerrainY(x) {
-  const xi = Math.floor(Math.max(0, Math.min(LW-1, x))), f = x - xi;
-  const y0 = (state.terrain[xi] || 0.5) * LH;
-  const y1 = (state.terrain[Math.min(LW, xi+1)] || 0.5) * LH;
-  return y0 + (y1 - y0) * f;
+  const xi=Math.floor(Math.max(0,Math.min(LW-1,x))), f=x-xi;
+  const y0=(state.terrain[xi]||0.5)*LH, y1=(state.terrain[Math.min(LW,xi+1)]||0.5)*LH;
+  return y0+(y1-y0)*f;
 }
 
-/* ════════════════════════════════════════════════
-   CANVAS SETUP (responsive + retina)
-════════════════════════════════════════════════ */
-let ctx, canvas, dpr = 1;
+/* ── CANVAS ── */
+let ctx, canvas, dpr=1;
 function setupCanvas() {
-  canvas = $('gameCanvas');
-  dpr = window.devicePixelRatio || 1;
-  const wrap = $('canvasWrap');
-  const displayW = wrap.clientWidth;
-  const displayH = Math.round(displayW * LH / LW);
-  canvas.width  = displayW * dpr;
-  canvas.height = displayH * dpr;
-  canvas.style.width  = displayW + 'px';
-  canvas.style.height = displayH + 'px';
-  ctx = canvas.getContext('2d');
-  ctx.scale(dpr * displayW / LW, dpr * displayH / LH);
+  canvas=$('gameCanvas'); dpr=window.devicePixelRatio||1;
+  const wrap=$('canvasWrap'), dw=wrap.clientWidth, dh=Math.round(dw*LH/LW);
+  canvas.width=dw*dpr; canvas.height=dh*dpr;
+  canvas.style.width=dw+'px'; canvas.style.height=dh+'px';
+  ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr*dw/LW, dpr*dh/LH);
 }
 
-/* ════════════════════════════════════════════════
-   GAME START
-════════════════════════════════════════════════ */
+/* ── TANK PLACEMENT: random, min gap = TANK_W ── */
+function placeTanks(tanks) {
+  const minGap = TANK_W + 10;
+  const margin = 40;
+  const usable = LW - margin*2;
+  let placed = [];
+  let attempts = 0;
+  while (placed.length < tanks.length && attempts < 5000) {
+    attempts++;
+    const x = margin + Math.random()*usable;
+    const tooClose = placed.some(p => Math.abs(p-x) < minGap);
+    if (!tooClose) placed.push(x);
+  }
+  // fallback: evenly spaced with jitter if random fails
+  if (placed.length < tanks.length) {
+    const step = usable / (tanks.length-1||1);
+    placed = tanks.map((_,i) => margin + i*step + (Math.random()-0.5)*Math.min(step*0.4, 20));
+  }
+  // shuffle so placement order is random
+  placed.sort(()=>Math.random()-0.5);
+  return tanks.map((t,i)=>{
+    const x = Math.max(margin, Math.min(LW-margin, placed[i]));
+    return {...t, x, y: getTerrainY(x)-12};
+  });
+}
+
+/* ── GRAVITY: settle tanks onto terrain ── */
+function settleTanks() {
+  state.tanks.forEach(t => {
+    if (!t.alive) return;
+    const ty = getTerrainY(t.x) - 12;
+    if (t.y < ty - 1) t.y = ty; // snap down if ground fell
+  });
+}
+
+/* ── GAME START ── */
 function startGame() {
   tgHaptic('impact_medium');
+  // cancel any running animation
+  if (animId) { cancelAnimationFrame(animId); animId=null; }
+
   const n        = parseInt($('tankCount').value);
   const teamMode = parseInt($('teamMode').value);
   const windMode = $('windMode').value;
   const mapType  = $('mapType').value;
 
   state.terrain = generateTerrain(mapType);
-  const wm = windMode === 'calm' ? 0.03 : windMode === 'strong' ? 0.09 : 0.06;
-  state.wind = (Math.random() * 2 - 1) * wm;
+  const wm = windMode==='calm'?0.03:windMode==='strong'?0.09:0.06;
+  state.wind = (Math.random()*2-1)*wm;
 
-  state.tanks = Array.from({length: n}, (_, i) => ({
-    id: i, name: TANK_NAMES[i], color: TANK_COLORS[i],
-    ctrl: $('ctrl_'+i)?.value || 'normal',
-    team: teamMode > 0 ? parseInt($('team_'+i)?.value ?? i % teamMode) : -1,
-    hp: 100, maxHp: 100, alive: true,
-    score: state.scores[i] || 0,
-    inventory: { ...(state.inventory[i] || {}) },
+  state.tanks = Array.from({length:n},(_,i)=>({
+    id:i, name:TANK_NAMES[i], color:TANK_COLORS[i],
+    ctrl:$('ctrl_'+i)?.value||'normal',
+    team:teamMode>0?parseInt($('team_'+i)?.value??i%teamMode):-1,
+    hp:100, maxHp:100, alive:true,
+    score:state.scores[i]||0,
+    inventory:{...(state.inventory[i]||{})},
   }));
 
-  // Place tanks evenly
-  const margin = 60, step = (LW - margin*2) / ((n-1) || 1);
-  state.tanks = state.tanks.map((t, i) => {
-    let x = n === 1 ? LW/2 : margin + i*step + (Math.random() - 0.5) * 20;
-    x = Math.max(30, Math.min(LW - 30, x));
-    return { ...t, x, y: getTerrainY(x) - 12 };
-  });
-
-  state.currentTankIdx = Math.floor(Math.random() * n);
-  state.firing = false; state.projectile = null; state.explosion = null;
+  state.tanks = placeTanks(state.tanks);
+  state.currentTankIdx = Math.floor(Math.random()*n);
+  state.firing = false;
+  state.projectile = null;
+  state.explosion = null;
+  state.selectedWeapon = 'bullet';
+  state.aiOnlyMode = onlyAI();
 
   showScreen('game');
   setupCanvas();
   loadSettings(getCurrentTank()?.id);
   updateGameUI();
   drawGame();
-  addLog('🎯 Раунд ' + state.round + ' начался!');
+  addLog('🎯 Раунд '+state.round+' начался!');
 
-  if (getCurrentTank()?.ctrl !== 'human') setTimeout(aiTurn, 900);
+  if (getCurrentTank()?.ctrl !== 'human') scheduleAI();
 }
 
-/* ════════════════════════════════════════════════
-   INPUT HANDLERS
-════════════════════════════════════════════════ */
+/* ── INPUT ── */
 function onAngleInput(v) {
-  state.angle = parseInt(v);
-  $('angleVal').textContent = v + '°';
+  $('angleVal').textContent = v+'°';
   saveSettings(getCurrentTank()?.id);
   drawGame();
 }
 function onPowerInput(v) {
-  state.power = parseInt(v);
   $('powerVal').textContent = v;
   saveSettings(getCurrentTank()?.id);
-  drawGame();
-}
-function setDir(d) {
-  state.dir = d;
-  updateDirButtons();
-  saveSettings(getCurrentTank()?.id);
-  drawGame();
-  tgHaptic('selection');
-}
-function updateDirButtons() {
-  $('dirLeft').classList.toggle('active', state.dir === -1);
-  $('dirRight').classList.toggle('active', state.dir === 1);
 }
 function selectWeapon(id) {
   state.selectedWeapon = id;
@@ -867,297 +445,283 @@ function selectWeapon(id) {
   tgHaptic('selection');
 }
 
-/* ════════════════════════════════════════════════
-   UI UPDATE
-════════════════════════════════════════════════ */
+/* ── UI ── */
 function updateGameUI() {
   const t = getCurrentTank(); if (!t) return;
-
-  $('turnInfo').textContent  = t.name + (t.ctrl !== 'human' ? ' 🤖' : ' 👤');
-  $('roundBadge').textContent = 'Раунд ' + state.round;
-
-  const w = state.wind;
-  $('windPill').textContent = '💨 ' + Math.abs(w).toFixed(3) + (w < 0 ? ' ←' : ' →');
-
-  // HP bars
-  $('hpBars').innerHTML = state.tanks.filter(x => x.alive).map(tk => `
+  $('turnInfo').textContent   = t.name+(t.ctrl!=='human'?' 🤖':' 👤')+(state.aiOnlyMode?' ⚡×50':'');
+  $('roundBadge').textContent = 'Раунд '+state.round;
+  const w=state.wind;
+  $('windPill').textContent   = '💨 '+Math.abs(w).toFixed(3)+(w<0?' ←':' →');
+  $('hpBars').innerHTML = state.tanks.filter(x=>x.alive).map(tk=>`
     <div class="hp-item">
       <div class="hp-dot" style="background:${tk.color}"></div>
       <div class="hp-bar-wrap"><div class="hp-bar-fill" style="width:${tk.hp}%;background:${tk.hp>50?'#639922':tk.hp>25?'#BA7517':'#E24B4A'}"></div></div>
       <span class="hp-val">${tk.hp}</span>
     </div>`).join('');
-
   updateWeaponTabs();
-
-  const isHuman = t.ctrl === 'human' && !state.firing;
-  $('fireBtn').disabled         = !isHuman;
-  $('angleSlider').disabled     = !isHuman;
-  $('powerSlider').disabled     = !isHuman;
-  $('dirLeft').style.opacity    = isHuman ? '1' : '0.4';
-  $('dirRight').style.opacity   = isHuman ? '1' : '0.4';
-  $('dirLeft').style.pointerEvents  = isHuman ? '' : 'none';
-  $('dirRight').style.pointerEvents = isHuman ? '' : 'none';
+  const isHuman = t.ctrl==='human' && !state.firing;
+  $('fireBtn').disabled     = !isHuman;
+  $('angleSlider').disabled = !isHuman;
+  $('powerSlider').disabled = !isHuman;
 }
-
 function updateWeaponTabs() {
-  const t = getCurrentTank(); if (!t) return;
-  const weps = [
-    { id:'bullet',  name:'Снаряд', cnt:'∞' },
-    { id:'missile', name:'Ракета', cnt:'∞' },
-    ...WEAPONS.slice(2)
-      .filter(w => (t.inventory?.[w.id] || 0) > 0)
-      .map(w => ({ id:w.id, name:w.name, cnt:t.inventory[w.id] }))
+  const t=getCurrentTank(); if(!t) return;
+  const weps=[
+    {id:'bullet',name:'Снаряд',cnt:'∞'},{id:'missile',name:'Ракета',cnt:'∞'},
+    ...WEAPONS.slice(2).filter(w=>(t.inventory?.[w.id]||0)>0).map(w=>({id:w.id,name:w.name,cnt:t.inventory[w.id]}))
   ];
-  $('weaponScroll').innerHTML = weps.map(w => `
-    <button class="wep-btn${state.selectedWeapon === w.id ? ' active' : ''}" onclick="selectWeapon('${w.id}')">
-      ${w.name}${w.cnt !== '∞' ? ' ×'+w.cnt : ''}
+  $('weaponScroll').innerHTML=weps.map(w=>`
+    <button class="wep-btn${state.selectedWeapon===w.id?' active':''}" onclick="selectWeapon('${w.id}')">
+      ${w.name}${w.cnt!=='∞'?' ×'+w.cnt:''}
     </button>`).join('');
 }
 
-/* ════════════════════════════════════════════════
-   DRAW
-════════════════════════════════════════════════ */
+/* ── DRAW ── */
 function drawGame() {
   if (!ctx) return;
-  ctx.clearRect(0, 0, LW, LH);
-
-  // Sky gradient
-  const sky = ctx.createLinearGradient(0, 0, 0, LH);
-  sky.addColorStop(0, '#0f0f2e'); sky.addColorStop(1, '#1a1a2e');
-  ctx.fillStyle = sky; ctx.fillRect(0, 0, LW, LH);
-
+  ctx.clearRect(0,0,LW,LH);
+  // Sky
+  const sky=ctx.createLinearGradient(0,0,0,LH);
+  sky.addColorStop(0,'#0f0f2e'); sky.addColorStop(1,'#1a1a2e');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,LW,LH);
   // Stars
-  for (let i = 0; i < 35; i++) {
-    ctx.fillStyle = `rgba(255,255,255,${0.2 + (i%3)*0.15})`;
-    ctx.fillRect((i*73+11)%LW, (i*47+7)%(LH*0.55), 1, 1);
-  }
-
-  // Terrain fill
-  ctx.beginPath(); ctx.moveTo(0, LH);
-  for (let x = 0; x <= LW; x++) ctx.lineTo(x, state.terrain[x] * LH);
-  ctx.lineTo(LW, LH);
-  const tGrad = ctx.createLinearGradient(0, LH*0.3, 0, LH);
-  tGrad.addColorStop(0, '#2d5a1e'); tGrad.addColorStop(1, '#1a3a0f');
-  ctx.fillStyle = tGrad; ctx.fill();
-
-  // Terrain edge
+  for(let i=0;i<35;i++){ctx.fillStyle=`rgba(255,255,255,${0.2+(i%3)*0.15})`;ctx.fillRect((i*73+11)%LW,(i*47+7)%(LH*0.55),1,1);}
+  // Terrain
+  ctx.beginPath(); ctx.moveTo(0,LH);
+  for(let x=0;x<=LW;x++) ctx.lineTo(x,state.terrain[x]*LH);
+  ctx.lineTo(LW,LH);
+  const tGrad=ctx.createLinearGradient(0,LH*0.3,0,LH);
+  tGrad.addColorStop(0,'#2d5a1e'); tGrad.addColorStop(1,'#1a3a0f');
+  ctx.fillStyle=tGrad; ctx.fill();
   ctx.beginPath();
-  for (let x = 0; x <= LW; x++) ctx.lineTo(x, state.terrain[x] * LH);
-  ctx.strokeStyle = '#5a9e33'; ctx.lineWidth = 2; ctx.stroke(); ctx.lineWidth = 1;
+  for(let x=0;x<=LW;x++) ctx.lineTo(x,state.terrain[x]*LH);
+  ctx.strokeStyle='#5a9e33'; ctx.lineWidth=2; ctx.stroke(); ctx.lineWidth=1;
 
   // Tanks
-  state.tanks.forEach(t => {
-    if (!t.alive) return;
-    const isActive = state.tanks[state.currentTankIdx]?.id === t.id;
-
-    if (isActive) {
-      ctx.beginPath(); ctx.arc(t.x, t.y - 8, 20, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
-    }
-
+  const sv=parseInt($('angleSlider')?.value??90);
+  const barrelDir = sliderToBarrel(sv);
+  state.tanks.forEach(t=>{
+    if(!t.alive) return;
+    const isActive=state.tanks[state.currentTankIdx]?.id===t.id;
+    if(isActive){ctx.beginPath();ctx.arc(t.x,t.y-8,20,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.06)';ctx.fill();}
     // Body
-    ctx.fillStyle = t.color;
-    ctx.beginPath();
-    ctx.roundRect?.(t.x-13, t.y-8, 26, 10, 3) || ctx.rect(t.x-13, t.y-8, 26, 10);
+    ctx.fillStyle=t.color;
+    if(ctx.roundRect) ctx.roundRect(t.x-13,t.y-8,26,10,3); else ctx.rect(t.x-13,t.y-8,26,10);
     ctx.fill();
-
-    // Turret
-    ctx.beginPath();
-    ctx.roundRect?.(t.x-9, t.y-16, 18, 9, 2) || ctx.rect(t.x-9, t.y-16, 18, 9);
+    if(ctx.roundRect) ctx.roundRect(t.x-9,t.y-16,18,9,2); else ctx.rect(t.x-9,t.y-16,18,9);
     ctx.fill();
-
     // Wheels
-    ctx.fillStyle = '#555';
-    [-9, 0, 9].forEach(ox => {
-      ctx.beginPath(); ctx.arc(t.x+ox, t.y-1, 4, 0, Math.PI*2); ctx.fill();
-    });
-
-    // Barrel
-    const ang = (isActive ? state.angle : 25) * Math.PI / 180;
-    const dir = isActive ? state.dir : (t.x < LW/2 ? 1 : -1);
-    const bx  = t.x + dir * Math.cos(ang) * 20;
-    const by  = t.y - 12 - Math.sin(ang) * 20;
-    ctx.beginPath(); ctx.moveTo(t.x, t.y-12); ctx.lineTo(bx, by);
-    ctx.strokeStyle = t.color; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.stroke();
-    ctx.lineCap = 'butt'; ctx.lineWidth = 1;
-
+    ctx.fillStyle='#555';
+    [-9,0,9].forEach(ox=>{ctx.beginPath();ctx.arc(t.x+ox,t.y-1,4,0,Math.PI*2);ctx.fill();});
+    // Barrel — active uses current slider, inactive uses fixed 45° toward center
+    let bdx, bdy;
+    if (isActive) {
+      bdx = barrelDir.vx * 20;
+      bdy = barrelDir.vy * 20;
+    } else {
+      // face toward center
+      const dirSign = t.x < LW/2 ? 1 : -1;
+      bdx = dirSign * Math.cos(Math.PI/4) * 20;
+      bdy = -Math.sin(Math.PI/4) * 20;
+    }
+    ctx.beginPath(); ctx.moveTo(t.x,t.y-12); ctx.lineTo(t.x+bdx,t.y-12+bdy);
+    ctx.strokeStyle=t.color; ctx.lineWidth=5; ctx.lineCap='round'; ctx.stroke();
+    ctx.lineCap='butt'; ctx.lineWidth=1;
     // HP bar
-    const bw = 26;
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(t.x - bw/2, t.y - 30, bw, 4);
-    ctx.fillStyle = t.hp > 50 ? '#5a9e33' : t.hp > 25 ? '#BA7517' : '#E24B4A';
-    ctx.fillRect(t.x - bw/2, t.y - 30, bw * (t.hp/100), 4);
-
-    // Name initial
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(t.name[0], t.x, t.y - 32);
+    ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(t.x-13,t.y-30,26,4);
+    ctx.fillStyle=t.hp>50?'#5a9e33':t.hp>25?'#BA7517':'#E24B4A';
+    ctx.fillRect(t.x-13,t.y-30,26*(t.hp/100),4);
+    // Name
+    ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='bold 9px monospace';ctx.textAlign='center';
+    ctx.fillText(t.name[0],t.x,t.y-32);
   });
 
   // Projectile
   if (state.projectile) {
-    const p = state.projectile;
-    if (p.trail) {
-      p.trail.forEach((pt, i) => {
-        ctx.beginPath(); ctx.arc(pt.x, pt.y, 2, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(250,199,117,${(i/p.trail.length)*0.5})`;
-        ctx.fill();
-      });
-    }
-    ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
-    ctx.fillStyle = '#FAC775'; ctx.fill();
-    ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(250,199,117,0.2)'; ctx.fill();
+    const p=state.projectile;
+    p.trail.forEach((pt,i)=>{
+      ctx.beginPath();ctx.arc(pt.x,pt.y,2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(250,199,117,${(i/p.trail.length)*0.5})`;ctx.fill();
+    });
+    ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fillStyle='#FAC775';ctx.fill();
+    ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle='rgba(250,199,117,0.2)';ctx.fill();
   }
 
   // Explosion
   if (state.explosion) {
-    const e = state.explosion;
-    const prog = e.frame / e.maxFrames;
-    const r    = e.radius * Math.sin(prog * Math.PI);
-    ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(226,75,74,${0.55*(1-prog)})`; ctx.fill();
-    ctx.beginPath(); ctx.arc(e.x, e.y, r*0.55, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(250,199,117,${0.8*(1-prog)})`; ctx.fill();
+    const e=state.explosion, prog=e.frame/e.maxFrames, r=e.radius*Math.sin(prog*Math.PI);
+    ctx.beginPath();ctx.arc(e.x,e.y,r,0,Math.PI*2);ctx.fillStyle=`rgba(226,75,74,${0.55*(1-prog)})`;ctx.fill();
+    ctx.beginPath();ctx.arc(e.x,e.y,r*0.55,0,Math.PI*2);ctx.fillStyle=`rgba(250,199,117,${0.8*(1-prog)})`;ctx.fill();
     e.frame++;
-    if (e.frame > e.maxFrames) state.explosion = null;
+    if(e.frame>e.maxFrames) state.explosion=null;
   }
 }
 
-/* ════════════════════════════════════════════════
-   FIRE & PHYSICS
-════════════════════════════════════════════════ */
+/* ── FIRE ── */
 function fire() {
   const t = getCurrentTank();
   if (!t || !t.alive || state.firing) return;
 
-  const wep = WEAPONS.find(w => w.id === state.selectedWeapon) || WEAPONS[0];
-
-  if (wep.id === 'shield') {
-    t.hp = Math.min(t.maxHp, t.hp + 30);
-    if ((t.inventory[wep.id] || 0) > 0) t.inventory[wep.id]--;
+  const wep = WEAPONS.find(w=>w.id===state.selectedWeapon)||WEAPONS[0];
+  if (wep.id==='shield') {
+    t.hp=Math.min(t.maxHp,t.hp+30);
+    if((t.inventory[wep.id]||0)>0) t.inventory[wep.id]--;
     addLog(`${t.name} активировал щит! +30 HP`);
-    tgHaptic('notification_success');
-    nextTurn(); return;
+    tgHaptic('notification_success'); nextTurn(); return;
   }
-  if (wep.id === 'repair') {
-    t.hp = Math.min(t.maxHp, t.hp + 50);
-    if ((t.inventory[wep.id] || 0) > 0) t.inventory[wep.id]--;
+  if (wep.id==='repair') {
+    t.hp=Math.min(t.maxHp,t.hp+50);
+    if((t.inventory[wep.id]||0)>0) t.inventory[wep.id]--;
     addLog(`${t.name} починил танк! +50 HP`);
-    tgHaptic('notification_success');
-    nextTurn(); return;
+    tgHaptic('notification_success'); nextTurn(); return;
   }
 
   tgHaptic('impact_heavy');
   state.firing = true;
   updateGameUI();
 
-  const ang = state.angle * Math.PI / 180;
-  const spd = (state.power / 100) * MAX_SPEED;
-  state.projectile = {
-    x: t.x, y: t.y - 16,
-    vx: state.dir * Math.cos(ang) * spd,
-    vy: -Math.sin(ang) * spd,
-    weapon: wep, trail: [],
-  };
-  animateProjectile();
+  const sv    = parseInt($('angleSlider').value);
+  const speed = (parseInt($('powerSlider').value)/100)*MAX_SPEED;
+  const vel   = sliderToVelocity(sv, speed);
+
+  state.projectile = { x:t.x, y:t.y-16, vx:vel.vx, vy:vel.vy, weapon:wep, trail:[] };
+
+  // cancel any stale anim loop
+  if (animId) { cancelAnimationFrame(animId); animId=null; }
+  runProjectile();
 }
 
-function animateProjectile() {
-  const p = state.projectile; if (!p) return;
-  p.trail.push({x: p.x, y: p.y});
-  if (p.trail.length > 15) p.trail.shift();
+/* ── PROJECTILE LOOP ──
+   Uses iterative steps per frame (1 normal, 50 in AI-only mode).
+   Returns early on hit to avoid double-processing.
+*/
+function runProjectile() {
+  const stepsPerFrame = state.aiOnlyMode ? 50 : 1;
 
-  p.vx += state.wind;
-  p.vy += GRAVITY;
-  p.x  += p.vx;
-  p.y  += p.vy;
+  function frame() {
+    const p = state.projectile;
+    if (!p) return; // already resolved
 
-  const ty = getTerrainY(p.x);
-  let hit = false;
+    let hitThisFrame = false;
 
-  if (p.y >= ty || p.x < -LW || p.x > LW*2 || p.y > LH + 50) {
-    hit = true; explode(p.x, Math.min(p.y, ty), p.weapon);
-  } else {
-    state.tanks.forEach(tk => {
-      if (!tk.alive || hit) return;
-      if (Math.hypot(tk.x - p.x, tk.y - p.y) < 14) { hit = true; explode(p.x, p.y, p.weapon); }
-    });
+    for (let s=0; s<stepsPerFrame && !hitThisFrame; s++) {
+      p.trail.push({x:p.x, y:p.y});
+      if (p.trail.length>16) p.trail.shift();
+
+      p.vx += state.wind;
+      p.vy += GRAVITY;
+      p.x  += p.vx;
+      p.y  += p.vy;
+
+      const ty = getTerrainY(p.x);
+
+      if (p.y >= ty || p.x < -LW || p.x > LW*2 || p.y > LH+50) {
+        hitThisFrame = true;
+        explode(p.x, Math.min(p.y, ty), p.weapon);
+      } else {
+        for (const tk of state.tanks) {
+          if (!tk.alive || hitThisFrame) continue;
+          if (Math.hypot(tk.x-p.x, tk.y-p.y) < 14) {
+            hitThisFrame = true;
+            explode(p.x, p.y, p.weapon);
+            break;
+          }
+        }
+      }
+    }
+
+    drawGame();
+
+    if (hitThisFrame) {
+      state.projectile = null;
+      animId = null;
+      // wait for explosion to render, then proceed
+      setTimeout(afterHit, state.aiOnlyMode ? 20 : 700);
+    } else {
+      animId = requestAnimationFrame(frame);
+    }
   }
 
-  drawGame();
-  if (hit) { state.projectile = null; setTimeout(checkWin, 900); }
-  else requestAnimationFrame(animateProjectile);
+  animId = requestAnimationFrame(frame);
 }
 
+function afterHit() {
+  // settle tanks — drop them if ground was destroyed underneath
+  settleTanks();
+  checkWin();
+}
+
+/* ── EXPLODE ── */
 function explode(x, y, weapon) {
-  state.explosion = { x, y, radius: weapon.splash, frame: 0, maxFrames: 20 };
-  tgHaptic('impact_heavy');
-  const t = getCurrentTank();
-  if (weapon.id === 'cluster') {
-    for (let i = 0; i < 5; i++) {
-      setTimeout(() => {
-        const cx = x + (Math.random() - 0.5) * weapon.splash;
-        const cy = y + (Math.random() - 0.5) * weapon.splash * 0.5;
-        damageAtPoint(cx, cy, weapon.splash * 0.7, weapon.dmg, t);
-      }, i * 100);
+  if (!state.aiOnlyMode) {
+    state.explosion = {x, y, radius:weapon.splash, frame:0, maxFrames:20};
+    tgHaptic('impact_heavy');
+  }
+  const attacker = getCurrentTank();
+  if (weapon.id==='cluster') {
+    for (let i=0;i<5;i++) {
+      const cx=x+(Math.random()-0.5)*weapon.splash*1.5;
+      const cy=y+(Math.random()-0.5)*weapon.splash*0.5;
+      damageAtPoint(cx, cy, weapon, attacker);
     }
   } else {
-    damageAtPoint(x, y, weapon.splash, weapon.dmg, t);
+    damageAtPoint(x, y, weapon, attacker);
   }
-  if (weapon.splash > 20) blastTerrain(x, y, weapon.splash * 0.5);
+  if (weapon.splash>15) blastTerrain(x, y, weapon.splash*0.55);
 }
 
 function blastTerrain(x, y, r) {
-  for (let xi = Math.max(0, Math.floor(x-r)); xi <= Math.min(LW, Math.ceil(x+r)); xi++) {
-    const d = Math.abs(xi - x);
-    if (d < r) state.terrain[xi] = Math.min(0.9, (state.terrain[xi]||0.5) + (1 - d/r) * 0.08);
+  for(let xi=Math.max(0,Math.floor(x-r));xi<=Math.min(LW,Math.ceil(x+r));xi++){
+    const d=Math.abs(xi-x);
+    if(d<r) state.terrain[xi]=Math.min(0.92,(state.terrain[xi]||0.5)+(1-d/r)*0.09);
   }
 }
 
-function damageAtPoint(x, y, splash, dmg, attacker) {
-  state.tanks.forEach(tk => {
-    if (!tk.alive) return;
-    const dist = Math.hypot(tk.x - x, tk.y - y);
-    if (dist < splash) {
-      const d = Math.round(dmg * (1 - dist/splash));
-      if (d <= 0) return;
-      tk.hp = Math.max(0, tk.hp - d);
-      const friendly = attacker && isAlly(attacker, tk);
-      addLog(`${attacker ? attacker.name : '?'} → ${tk.name}: ${d} урона${friendly ? ' ⚠️ дружественный огонь!' : ''}`);
-      if (tk.hp <= 0) {
-        tk.alive = false;
+// Falloff: damage = dmg at center, linearly to dmg*falloff at edge
+function damageAtPoint(x, y, weapon, attacker) {
+  state.tanks.forEach(tk=>{
+    if(!tk.alive) return;
+    const dist=Math.hypot(tk.x-x, tk.y-y);
+    if(dist < weapon.splash) {
+      const ratio = dist/weapon.splash;
+      const d = Math.round(weapon.dmg*(1-ratio*(1-weapon.falloff)));
+      if(d<=0) return;
+      tk.hp=Math.max(0,tk.hp-d);
+      const friendly=attacker&&isAlly(attacker,tk);
+      addLog(`${attacker?attacker.name:'?'} → ${tk.name}: ${d} ур${friendly?' ⚠️ свои!':''}`);
+      if(tk.hp<=0){
+        tk.alive=false;
         addLog(`💥 ${tk.name} уничтожен!`);
         tgHaptic('notification_error');
-        if (attacker && attacker.id !== tk.id && !isAlly(attacker, tk))
-          attacker.score = (attacker.score || 0) + 200;
+        if(attacker&&attacker.id!==tk.id&&!isAlly(attacker,tk))
+          attacker.score=(attacker.score||0)+200;
       }
     }
   });
 }
 
-/* ════════════════════════════════════════════════
-   TURN MANAGEMENT
-════════════════════════════════════════════════ */
+/* ── TURNS ── */
 function nextTurn() {
-  const prev = getCurrentTank();
-  if (prev?.ctrl === 'human') saveSettings(prev.id);
+  // save settings for current human player
+  const prev=getCurrentTank();
+  if(prev?.ctrl==='human') saveSettings(prev.id);
 
-  state.firing = false;
-  const n = state.tanks.length;
-  let next = (state.currentTankIdx + 1) % n, iters = 0;
-  while (!state.tanks[next].alive && iters < n) { next = (next+1) % n; iters++; }
+  state.firing=false;
+  const n=state.tanks.length;
+  let next=(state.currentTankIdx+1)%n, iters=0;
+  while(!state.tanks[next].alive&&iters<n){next=(next+1)%n;iters++;}
 
-  state.wind += (Math.random() - 0.5) * 0.01;
-  state.wind = Math.max(-0.12, Math.min(0.12, state.wind));
-  state.currentTankIdx = next;
+  state.wind+=(Math.random()-0.5)*0.01;
+  state.wind=Math.max(-0.12,Math.min(0.12,state.wind));
+  state.currentTankIdx=next;
+  state.aiOnlyMode=onlyAI();
 
-  const cur = getCurrentTank();
-  if (cur?.ctrl === 'human') loadSettings(cur.id);
+  const cur=getCurrentTank();
+  if(cur?.ctrl==='human') loadSettings(cur.id);
 
   updateGameUI();
   drawGame();
-  if (cur?.ctrl !== 'human') setTimeout(aiTurn, 700);
+  if(cur?.ctrl!=='human') scheduleAI();
 }
 
 function skipTurn() {
@@ -1166,58 +730,64 @@ function skipTurn() {
   nextTurn();
 }
 
-/* ════════════════════════════════════════════════
-   AI
-════════════════════════════════════════════════ */
-function aiTurn() {
-  const t = getCurrentTank(); if (!t || !t.alive) return;
-  const enemies = state.tanks.filter(e => e.alive && e.id !== t.id && !isAlly(t, e));
-  if (!enemies.length) { nextTurn(); return; }
-
-  const target = enemies[Math.floor(Math.random() * enemies.length)];
-  const dx = target.x - t.x, dy = t.y - target.y;
-  const acc = t.ctrl==='easy' ? 0.3+Math.random()*0.3 : t.ctrl==='normal' ? 0.7+Math.random()*0.2 : 0.9+Math.random()*0.1;
-  const dist = Math.hypot(dx, dy);
-  const noise = (1 - acc) * 30;
-
-  let ang = Math.atan2(Math.abs(dy) + dist*0.3, Math.abs(dx)) * 180/Math.PI;
-  ang = Math.max(10, Math.min(75, ang));
-
-  state.angle = Math.round(ang + (Math.random() - 0.5) * noise);
-  state.dir   = dx > 0 ? 1 : -1;
-  state.power = Math.max(10, Math.min(100, Math.round(40 + dist/LW*60 + (Math.random()-0.5)*noise)));
-
-  $('angleSlider').value = state.angle; $('angleVal').textContent = state.angle + '°';
-  $('powerSlider').value = state.power; $('powerVal').textContent = state.power;
-  updateDirButtons(); updateGameUI();
-  addLog(`${t.name} 🤖 целится в ${target.name}...`);
-  setTimeout(fire, 600);
+function scheduleAI() {
+  const delay = state.aiOnlyMode ? 10 : 600;
+  setTimeout(aiTurn, delay);
 }
 
-/* ════════════════════════════════════════════════
-   WIN / RESULTS / SHOP
-════════════════════════════════════════════════ */
+/* ── AI ── */
+function aiTurn() {
+  const t=getCurrentTank();
+  if(!t||!t.alive||state.firing) return;
+  const enemies=state.tanks.filter(e=>e.alive&&e.id!==t.id&&!isAlly(t,e));
+  if(!enemies.length){nextTurn();return;}
+
+  const target=enemies[Math.floor(Math.random()*enemies.length)];
+  const dx=target.x-t.x, dy=t.y-target.y;
+  const acc=t.ctrl==='easy'?0.35+Math.random()*0.3:t.ctrl==='normal'?0.65+Math.random()*0.25:0.88+Math.random()*0.12;
+  const dist=Math.hypot(dx,dy);
+  const noise=(1-acc)*35;
+
+  // Calculate ideal angle in slider coordinates
+  // vx = cos(rad)*speed, vy = -sin(rad)*speed
+  // We want vx ~= dx/norm, vy ~= -dy/norm (roughly)
+  // rad = atan2(-desired_vy, desired_vx), sv = (rad+PI/2)/PI*180
+  const norm=Math.hypot(dx,Math.max(dy,20));
+  const desiredRad=Math.atan2(-(dy/norm+0.3), dx/norm);
+  let sv=(desiredRad+Math.PI/2)/Math.PI*180;
+  sv=Math.max(5,Math.min(175,sv+(Math.random()-0.5)*noise));
+
+  const power=Math.max(15,Math.min(100,Math.round(35+dist/LW*65+(Math.random()-0.5)*noise)));
+
+  $('angleSlider').value=Math.round(sv);
+  $('angleVal').textContent=Math.round(sv)+'°';
+  $('powerSlider').value=power;
+  $('powerVal').textContent=power;
+  updateGameUI();
+  if(!state.aiOnlyMode) addLog(`${t.name} 🤖 целится в ${target.name}...`);
+  fire();
+}
+
+/* ── WIN ── */
 function checkWin() {
-  const alive  = state.tanks.filter(t => t.alive);
-  const teams  = [...new Set(alive.map(t => t.team))];
-  const gameOver = alive.length <= 1 || (teams.length === 1 && alive[0].team >= 0);
-  if (gameOver) { state.firing = false; showResults(alive); }
+  const alive=state.tanks.filter(t=>t.alive);
+  const teams=[...new Set(alive.map(t=>t.team))];
+  const over=alive.length<=1||(teams.length===1&&alive[0].team>=0&&state.tanks.filter(t=>t.alive).length>0);
+  if(over){state.firing=false;showResults(alive);}
   else nextTurn();
 }
 
+/* ── RESULTS & SHOP ── */
 function showResults(survivors) {
-  state.tanks.forEach(t => { state.scores[t.id] = t.score || 0; });
+  state.tanks.forEach(t=>{state.scores[t.id]=t.score||0;});
   tgHaptic('notification_success');
-
-  let emoji = '💀', winText = 'Все уничтожены — ничья!';
-  if (survivors.length === 1) { emoji = '🏆'; winText = `Победитель: ${survivors[0].name}!`; }
-  else if (survivors.length > 1 && survivors[0].team >= 0) { emoji = '🏆'; winText = `Победила Команда ${survivors[0].team+1}!`; }
-
-  $('winnerEmoji').textContent = emoji;
-  $('winnerText').textContent  = winText;
-
-  const sorted = [...state.tanks].sort((a,b) => (b.score||0) - (a.score||0));
-  $('resultsCard').innerHTML = sorted.map((t, i) => `
+  let emoji='💀',winText='Все уничтожены — ничья!';
+  if(survivors.length===1){emoji='🏆';winText=`Победитель: ${survivors[0].name}!`;}
+  else if(survivors.length>1&&survivors[0].team>=0){emoji='🏆';winText=`Победила Команда ${survivors[0].team+1}!`;}
+  $('winnerEmoji').textContent=emoji;
+  $('winnerText').textContent=winText;
+  const sorted=[...state.tanks].sort((a,b)=>(b.score||0)-(a.score||0));
+  $('resultsCard').innerHTML=sorted.map((t,i)=>`
     <div class="result-row">
       <span class="result-rank">${i+1}</span>
       <div class="result-dot" style="background:${t.color}"></div>
@@ -1225,72 +795,51 @@ function showResults(survivors) {
       <span class="result-status ${t.alive?'alive-tag':'dead-tag'}">${t.alive?'Выжил':'Убит'}</span>
       <span class="result-score">${t.score||0}</span>
     </div>`).join('');
-
-  $('shopList').innerHTML = WEAPONS.slice(2).map(w => `
+  $('shopList').innerHTML=WEAPONS.slice(2).map(w=>`
     <div class="shop-item">
       <span class="shop-icon">${w.icon}</span>
-      <div class="shop-info">
-        <div class="shop-name">${w.name}</div>
-        <div class="shop-desc">${w.desc} · ${w.count===Infinity?'∞':w.count} шт</div>
-      </div>
+      <div class="shop-info"><div class="shop-name">${w.name}</div><div class="shop-desc">${w.desc}</div></div>
       <div class="shop-right">
         <span class="shop-cost">💰 ${w.cost}</span>
         <div class="shop-buyers">
-          ${sorted.filter(t => t.alive).map(t => `
-            <button class="buy-btn" onclick="buyItem('${w.id}',${t.id},${w.cost})" title="${t.name}">
-              <span style="color:${t.color}">●</span> ${t.name.slice(0,3)}
-            </button>`).join('')}
+          ${sorted.filter(t=>t.alive).map(t=>`<button class="buy-btn" onclick="buyItem('${w.id}',${t.id},${w.cost})"><span style="color:${t.color}">●</span> ${t.name.slice(0,4)}</button>`).join('')}
         </div>
       </div>
     </div>`).join('');
-
   state.round++;
   showScreen('results');
 }
 
-function buyItem(wid, tid, cost) {
-  const t = state.tanks.find(t => t.id === tid);
-  if (!t || (t.score||0) < cost) { tgHaptic('notification_error'); addLog('Недостаточно очков!'); return; }
-  t.score -= cost; state.scores[tid] = t.score;
-  if (!state.inventory[tid]) state.inventory[tid] = {};
-  state.inventory[tid][wid] = (state.inventory[tid][wid] || 0) + 1;
+function buyItem(wid,tid,cost) {
+  const t=state.tanks.find(t=>t.id===tid);
+  if(!t||(t.score||0)<cost){tgHaptic('notification_error');addLog('Недостаточно очков!');return;}
+  t.score-=cost; state.scores[tid]=t.score;
+  if(!state.inventory[tid]) state.inventory[tid]={};
+  state.inventory[tid][wid]=(state.inventory[tid][wid]||0)+1;
   tgHaptic('notification_success');
   addLog(`${t.name} купил ${WEAPONS.find(w=>w.id===wid)?.name}`);
-  // Refresh shop score display
-  document.querySelectorAll('.result-score').forEach((el, i) => {
-    const st = [...state.tanks].sort((a,b)=>(b.score||0)-(a.score||0))[i];
-    if (st) el.textContent = st.score || 0;
+  document.querySelectorAll('.result-score').forEach((el,i)=>{
+    const st=[...state.tanks].sort((a,b)=>(b.score||0)-(a.score||0))[i];
+    if(st) el.textContent=st.score||0;
   });
 }
 
-function nextRound() { tgHaptic('impact_medium'); startGame(); }
-
-function showSetup() {
-  state = makeState();
-  playerSettings = {};
+function nextRound(){tgHaptic('impact_medium');startGame();}
+function showSetup(){
+  if(animId){cancelAnimationFrame(animId);animId=null;}
+  state=makeState(); playerSettings={};
   showScreen('setup');
 }
 
-/* ════════════════════════════════════════════════
-   RESIZE
-════════════════════════════════════════════════ */
-window.addEventListener('resize', () => {
-  if ($('screen-game').classList.contains('active')) {
-    setupCanvas(); drawGame();
-  }
+window.addEventListener('resize',()=>{
+  if($('screen-game').classList.contains('active')){setupCanvas();drawGame();}
 });
 
-/* ════════════════════════════════════════════════
-   INIT
-════════════════════════════════════════════════ */
 updateTankList();
 
-// Telegram: передаём данные пользователя если доступны
-if (tg?.initDataUnsafe?.user) {
-  const user = tg.initDataUnsafe.user;
-  // Можно использовать user.first_name для персонализации
-  const firstTankLabel = document.querySelector('#tankList .tank-row-name');
-  if (firstTankLabel && user.first_name) firstTankLabel.textContent = user.first_name;
+if(tg?.initDataUnsafe?.user){
+  const u=tg.initDataUnsafe.user;
+  setTimeout(()=>{const el=document.querySelector('#tankList .tank-row-name');if(el&&u.first_name)el.textContent=u.first_name;},0);
 }
 </script>
 </body>
