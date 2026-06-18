@@ -156,7 +156,7 @@ input[type=range]:disabled{opacity:0.3;}
       <input type="range" id="angleSlider" min="0" max="180" value="90" oninput="onAngleInput(this.value)">
       <span class="slider-val" id="angleVal">90°</span>
     </div>
-    <div class="angle-hint">180°=→  |  90°=↑  |  0°=←</div>
+    <div class="angle-hint">0°=←  |  90°=↑  |  180°=→</div>
     <div class="slider-row">
       <span class="slider-label">Сила залпа</span>
       <input type="range" id="powerSlider" min="10" max="100" value="60" oninput="onPowerInput(this.value)">
@@ -207,17 +207,17 @@ const TANK_NAMES  = ['Красный','Синий','Зелёный','Жёлты�
 const TANK_W = 28; // ширина танка в пикселях (логических)
 
 // Угол на слайдере: 0=влево, 90=вверх, 180=вправо
-// vx = cos(rad) * speed, где rad = (sliderVal/180)*PI - PI/2
-// при sv=0:   rad=-PI/2 → vx=-1 (влево)
-// при sv=90:  rad=0     → vx=0  (вверх)
-// при sv=180: rad=+PI/2 → vx=+1 (вправо)
+// Преобразуем sv в радиан так, что:
+//   sv=0   → rad=PI   → vx=-1 (влево)
+//   sv=90  → rad=PI/2 → vy=-1 (вверх)
+//   sv=180 → rad=0    → vx=+1 (вправо)
+// Формула: rad = PI - (sv/180)*PI = PI*(1 - sv/180)
 function sliderToVelocity(sv, speed) {
-  const rad = (sv / 180) * Math.PI - Math.PI / 2;
+  const rad = Math.PI * (1 - sv / 180);
   return { vx: Math.cos(rad) * speed, vy: -Math.sin(rad) * speed };
 }
-// Для отображения ствола: возвращает угол от горизонтали и направление
 function sliderToBarrel(sv) {
-  const rad = (sv / 180) * Math.PI - Math.PI / 2;
+  const rad = Math.PI * (1 - sv / 180);
   return { vx: Math.cos(rad), vy: -Math.sin(rad) };
 }
 
@@ -486,15 +486,18 @@ function drawGame() {
   ctx.fillStyle=sky; ctx.fillRect(0,0,LW,LH);
   // Stars
   for(let i=0;i<35;i++){ctx.fillStyle=`rgba(255,255,255,${0.2+(i%3)*0.15})`;ctx.fillRect((i*73+11)%LW,(i*47+7)%(LH*0.55),1,1);}
-  // Terrain
-  ctx.beginPath(); ctx.moveTo(0,LH);
-  for(let x=0;x<=LW;x++) ctx.lineTo(x,state.terrain[x]*LH);
-  ctx.lineTo(LW,LH);
-  const tGrad=ctx.createLinearGradient(0,LH*0.3,0,LH);
-  tGrad.addColorStop(0,'#2d5a1e'); tGrad.addColorStop(1,'#1a3a0f');
-  ctx.fillStyle=tGrad; ctx.fill();
+  // Terrain fill
   ctx.beginPath();
-  for(let x=0;x<=LW;x++) ctx.lineTo(x,state.terrain[x]*LH);
+  ctx.moveTo(0, LH);
+  for(let x=0;x<=LW;x++) ctx.lineTo(x, state.terrain[x]*LH);
+  ctx.lineTo(LW, LH);
+  ctx.closePath();
+  ctx.fillStyle='#2d5a1e';
+  ctx.fill();
+  // Terrain edge line
+  ctx.beginPath();
+  ctx.moveTo(0, state.terrain[0]*LH);
+  for(let x=1;x<=LW;x++) ctx.lineTo(x, state.terrain[x]*LH);
   ctx.strokeStyle='#5a9e33'; ctx.lineWidth=2; ctx.stroke(); ctx.lineWidth=1;
 
   // Tanks
@@ -503,36 +506,51 @@ function drawGame() {
   state.tanks.forEach(t=>{
     if(!t.alive) return;
     const isActive=state.tanks[state.currentTankIdx]?.id===t.id;
-    if(isActive){ctx.beginPath();ctx.arc(t.x,t.y-8,20,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.06)';ctx.fill();}
-    // Body
+    if(isActive){
+      ctx.beginPath();ctx.arc(t.x,t.y-8,20,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.06)';ctx.fill();
+    }
+    // Body (hull)
     ctx.fillStyle=t.color;
-    if(ctx.roundRect) ctx.roundRect(t.x-13,t.y-8,26,10,3); else ctx.rect(t.x-13,t.y-8,26,10);
+    ctx.beginPath();
+    ctx.rect(t.x-13, t.y-8, 26, 10);
     ctx.fill();
-    if(ctx.roundRect) ctx.roundRect(t.x-9,t.y-16,18,9,2); else ctx.rect(t.x-9,t.y-16,18,9);
+    // Turret
+    ctx.beginPath();
+    ctx.rect(t.x-8, t.y-16, 16, 9);
     ctx.fill();
     // Wheels
-    ctx.fillStyle='#555';
-    [-9,0,9].forEach(ox=>{ctx.beginPath();ctx.arc(t.x+ox,t.y-1,4,0,Math.PI*2);ctx.fill();});
-    // Barrel — active uses current slider, inactive uses fixed 45° toward center
+    ctx.fillStyle='#444';
+    [-9,0,9].forEach(ox=>{
+      ctx.beginPath();ctx.arc(t.x+ox,t.y-1,4,0,Math.PI*2);ctx.fill();
+    });
+    // Wheel highlight
+    ctx.fillStyle='#666';
+    [-9,0,9].forEach(ox=>{
+      ctx.beginPath();ctx.arc(t.x+ox-1,t.y-2,1.5,0,Math.PI*2);ctx.fill();
+    });
+    // Barrel
     let bdx, bdy;
     if (isActive) {
       bdx = barrelDir.vx * 20;
       bdy = barrelDir.vy * 20;
     } else {
-      // face toward center
       const dirSign = t.x < LW/2 ? 1 : -1;
       bdx = dirSign * Math.cos(Math.PI/4) * 20;
       bdy = -Math.sin(Math.PI/4) * 20;
     }
-    ctx.beginPath(); ctx.moveTo(t.x,t.y-12); ctx.lineTo(t.x+bdx,t.y-12+bdy);
+    ctx.beginPath();
+    ctx.moveTo(t.x, t.y-12);
+    ctx.lineTo(t.x+bdx, t.y-12+bdy);
     ctx.strokeStyle=t.color; ctx.lineWidth=5; ctx.lineCap='round'; ctx.stroke();
     ctx.lineCap='butt'; ctx.lineWidth=1;
     // HP bar
     ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(t.x-13,t.y-30,26,4);
     ctx.fillStyle=t.hp>50?'#5a9e33':t.hp>25?'#BA7517':'#E24B4A';
     ctx.fillRect(t.x-13,t.y-30,26*(t.hp/100),4);
-    // Name
-    ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='bold 9px monospace';ctx.textAlign='center';
+    // Name initial
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.font='bold 9px monospace'; ctx.textAlign='center';
     ctx.fillText(t.name[0],t.x,t.y-32);
   });
 
@@ -748,14 +766,14 @@ function aiTurn() {
   const dist=Math.hypot(dx,dy);
   const noise=(1-acc)*35;
 
-  // Calculate ideal angle in slider coordinates
-  // vx = cos(rad)*speed, vy = -sin(rad)*speed
-  // We want vx ~= dx/norm, vy ~= -dy/norm (roughly)
-  // rad = atan2(-desired_vy, desired_vx), sv = (rad+PI/2)/PI*180
-  const norm=Math.hypot(dx,Math.max(dy,20));
-  const desiredRad=Math.atan2(-(dy/norm+0.3), dx/norm);
-  let sv=(desiredRad+Math.PI/2)/Math.PI*180;
-  sv=Math.max(5,Math.min(175,sv+(Math.random()-0.5)*noise));
+  // sv = 180*(1 - rad/PI), where rad = atan2(sin,cos)
+  // desired direction: dx>0 → right → sv near 180; dx<0 → left → sv near 0
+  // rad = PI*(1 - sv/180)  → sv = 180*(1 - rad/PI)
+  const desiredRad = Math.atan2(Math.max(dy, 20) + dist*0.3, dx); // positive y = up in math
+  // clamp to upper hemisphere (0..PI)
+  const clampedRad = Math.max(0.15, Math.min(Math.PI - 0.15, desiredRad));
+  let sv = 180 * (1 - clampedRad / Math.PI);
+  sv = Math.max(5, Math.min(175, sv + (Math.random()-0.5)*noise));
 
   const power=Math.max(15,Math.min(100,Math.round(35+dist/LW*65+(Math.random()-0.5)*noise)));
 
